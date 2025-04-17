@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>ETF 시그널 리포트</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .card-title {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .prob {
+      margin-top: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📈 ETF AI 시그널</h1>
+
+  <div class="section">
+    <h2>🟢 시그널 추천</h2>
+    <div id="signal-container">로딩 중...</div>
+  </div>
+
+  <div class="section">
+    <h2>📰 뉴스 요약</h2>
+    <div id="news-container">로딩 중...</div>
+  </div>
+
+  <script>
+    const signalUrl = "https://supermax.kr/etfapi/signal";
+    const newsUrl = "https://supermax.kr/etfapi/news";
+
+    async function loadSignals() {
+      const container = document.getElementById("signal-container");
+      try {
+        const res = await fetch(signalUrl);
+        const data = await res.json();
+        container.innerHTML = "";
+        data.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `
+            <div class="card-title">${item.ticker} (${item.name})</div>
+            <div class="meta">${item.sector} / ${item.region}</div>
+            <div class="prob">확률: <strong>${item.probability}%</strong> / 시그널: ${item.signal}</div>
+            <div class="prob">추천가: ${item.buy_price} / 익절: ${item.take_profit} / 손절: ${item.stop_loss}</div>
+            <div class="meta">🧠 ${item.reason}</div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (e) {
+        container.innerHTML = "❌ 시그널 데이터를 불러올 수 없습니다.";
+        console.error(e);
+      }
+    }
+
+    async function loadNews() {
+      const container = document.getElementById("news-container");
+      try {
+        const res = await fetch(newsUrl);
+        const data = await res.json();
+        container.innerHTML = "";
+        data.forEach(news => {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = `
+            <div class="card-title">📰 ${news.title}</div>
+            <div class="meta">${news.summary}</div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (e) {
+        container.innerHTML = "❌ 뉴스 데이터를 불러올 수 없습니다.";
+        console.error(e);
+      }
+    }
+
+    loadSignals();
+    loadNews();
+  </script>
+</body>
+</html>
